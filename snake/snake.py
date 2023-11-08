@@ -13,6 +13,9 @@ caption = pygame.display.set_caption("Snake")
 fps = 16
 clock = pygame.time.Clock()
 
+#font
+font = pygame.font.Font(r'C:\Users\zevan\pygame\snake\Retro Gaming.ttf', 20)
+
 #grid
 grid_color = (20, 20, 30)
 grid_spacing = 20
@@ -32,6 +35,11 @@ def foodSpot():
     foodX= random.randint(0, 39)
     global foodY 
     foodY = random.randint(0, 29)
+    global playerX
+    global playerY
+    for i in range(len(playerX)):
+        if foodX == playerX[i] and foodY == playerY[i]:
+            foodSpot()
 foodSpot()
 
 #Game loop
@@ -107,7 +115,15 @@ while running:
     #food update
     pygame.draw.rect(screen, (255,0,0), (foodX * 20, foodY * 20, 20, 20))
 
+    #display text
+    text = f"Score: {score}"
+    text_color = (255, 255, 255) 
+    text_surface = font.render(text, True, text_color)
+    text_rect = text_surface.get_rect()
+    screen.blit(text_surface, (5,5))
+
     pygame.display.flip()  # Update the display
 
     clock.tick(fps)
+
 pygame.quit
