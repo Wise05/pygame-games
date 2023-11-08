@@ -15,6 +15,7 @@ clock = pygame.time.Clock()
 
 #font
 font = pygame.font.Font(r'C:\Users\zevan\pygame\snake\Retro Gaming.ttf', 20)
+endFont = pygame.font.Font(r'C:\Users\zevan\pygame\snake\Retro Gaming.ttf', 50)
 
 #grid
 grid_color = (20, 20, 30)
@@ -42,6 +43,7 @@ def foodSpot():
             foodSpot()
 foodSpot()
 
+endGame = 0
 #Game loop
 running = True
 while running:
@@ -53,17 +55,17 @@ while running:
     for i in range(len(playerX)):
         if i > 1:
             if playerX[0] == playerX[i] and playerY[0] == playerY[i]:
-                print(playerX, playerY)
-                running = False
+                endGame = 1
 
     #player array
-    for i in range(len(playerX) - 1, -1, -1):
-        if i > 0:
-            playerX[i] = playerX[i-1]
-            playerY[i] = playerY[i-1]
-        else:
-            playerX[i] = playerX[i]
-            playerY[i] = playerY[i]
+    if endGame != 1:
+        for i in range(len(playerX) - 1, -1, -1):
+            if i > 0:
+                playerX[i] = playerX[i-1]
+                playerY[i] = playerY[i-1]
+            else:
+                playerX[i] = playerX[i]
+                playerY[i] = playerY[i]
 
     #player input
     keys = pygame.key.get_pressed()
@@ -99,7 +101,7 @@ while running:
 
     #wall collision
     if playerX[0] < 0 or playerX[0] > 40 or playerY[0] < 0 or playerY[0] > 30:
-        running = False
+        endGame = 1
 
     # background update
     screen.fill((0,0,0))
@@ -119,11 +121,21 @@ while running:
     text = f"Score: {score}"
     text_color = (255, 255, 255) 
     text_surface = font.render(text, True, text_color)
-    text_rect = text_surface.get_rect()
     screen.blit(text_surface, (5,5))
+
+    #end screen
+    if endGame == 1:
+        endText = f"Game Over"
+        endText_surface = endFont.render(endText, True, text_color)
+        endText_rect = endText_surface.get_rect()
+        screen.blit(endText_surface, (250,250))
+
+        playerSpeed = 0
 
     pygame.display.flip()  # Update the display
 
     clock.tick(fps)
+
+
 
 pygame.quit
