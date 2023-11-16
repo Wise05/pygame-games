@@ -100,7 +100,7 @@ while running:
 
 
     #wall collision
-    if playerX[0] < 0 or playerX[0] > 40 or playerY[0] < 0 or playerY[0] > 30:
+    if playerX[0] <= 0 or playerX[0] >= 40 or playerY[0] <= 0 or playerY[0] >= 30:
         endGame = 1
 
     # background update
