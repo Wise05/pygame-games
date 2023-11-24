@@ -18,10 +18,11 @@ color = (0,0,0)
 #balls!
 ballX = [400]
 ballY = [250]
-speed = 0.2
+speed = 0.1
 speedX = [0]
-speedY = [-0.2]
+speedY = [-0.1]
 bounces = 0
+bounce = 1
 ballTouch = 0
 
 #buttons
@@ -29,9 +30,14 @@ button1 = pygame.Rect(10, 510, 180, 80)
 button2 = pygame.Rect(210, 510, 180, 80)
 button3 = pygame.Rect(410, 510, 180, 80)
 button4 = pygame.Rect(610, 510, 180, 80)
-buttonColor = (20, 20, 40)
+buttonColor = [(20, 20, 40), (20, 20, 40), (20, 20, 40), (20, 20, 40)]
 defaultColor = (20, 20, 40)
-pressedColor = (40, 40, 60)
+pressedColor = (10, 80, 10)
+errorColor = (80, 10, 10)
+price1 = 2
+price2 = 20
+price3 = 50
+price4 = 200
 
 #text
 font = pygame.font.Font(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\Arial.ttf', 20)
@@ -48,28 +54,47 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left mouse button
                 if button1.collidepoint(event.pos):
-                    ballX.append(400)
-                    ballY.append(250)
-                    speedX.append(0)
-                    speedY.append(-0.2)
+                    if bounces >= price1:
+                        ballX.append(400)
+                        ballY.append(250)
+                        speedX.append(0)
+                        speedY.append(-speed)
+                        bounces -= price1
+                        price1 = math.floor(price1*1.5)
+                        buttonColor[0] = pressedColor
+                    else:
+                        buttonColor[0] = errorColor
                 elif button2.collidepoint(event.pos):
-                    print("Pressed 2")
+                    if bounces >= price2:
+                        speed += 0.1
+                        bounces -= price2
+                        price2 = price2*4
+                        buttonColor[1] = pressedColor
+                    else:
+                        buttonColor[1] = errorColor
                 elif button3.collidepoint(event.pos):
-                    print("Pressed 3")
+                    if bounces >= price3:
+                        bounces = 0
                 elif button4.collidepoint(event.pos): 
-                    print("Pressed 4")
-
+                    if bounces >= price4:
+                        bounce += 1
+                        bounces -= price4
+                        price4 = math.floor(price4*1.2)
+                        buttonColor[3] = pressedColor
+                    else:
+                        buttonColor[3] = errorColor
+        elif event.type == pygame.MOUSEBUTTONUP:
+            for i in range(len(buttonColor)):
+                buttonColor[i] = defaultColor
     #background update
     screen.fill(color)
     pygame.draw.rect(screen, (10,10,20), (0, 500, 800, 100))
 
     #buttons
-    buttonColor = (20, 20, 40)
-    pressedColor = ()
-    pygame.draw.rect(screen, buttonColor, button1)
-    pygame.draw.rect(screen, buttonColor, button2)
-    pygame.draw.rect(screen, buttonColor, button3)
-    pygame.draw.rect(screen, buttonColor, button4)
+    pygame.draw.rect(screen, buttonColor[0], button1)
+    pygame.draw.rect(screen, buttonColor[1], button2)
+    pygame.draw.rect(screen, buttonColor[2], button3)
+    pygame.draw.rect(screen, buttonColor[3], button4)
 
     #player update
     for i in range(len(ballX)):
@@ -80,40 +105,37 @@ while running:
         if (ballY[i] >= 500):
             speedX[i] = random.uniform(-speed, speed)
             speedY[i] = -(math.sqrt(speed**2 - speedX[i]**2))
+            bounces += bounce
         if (ballY[i] <= 0):
             speedX[i] = random.uniform(-speed, speed)
             speedY[i] = (math.sqrt(speed**2 - speedX[i]**2))
+            bounces += bounce
         if (ballX[i] >= 800):
             speedY[i] = random.uniform(-speed, speed)
             speedX[i] = -(math.sqrt(speed**2 - speedY[i]**2))
+            bounces += bounce
         if (ballX[i] <= 0):
             speedY[i] = random.uniform(-speed, speed)
             speedX[i] = (math.sqrt(speed**2 - speedY[i]**2))
-        #fun stuff
-        if (ballTouch == 0):
-            if (ballY[i] >= 500 or ballY[i] <= 0 or ballX[i] >= 800 or ballX[i] <= 0):
-                color = (random.randint(0,80), random.randint(0,80), random.randint(0,80))
-                bounces += 1
-                ballTouch = 1
-                
+            bounces += bounce
+        
         #draw balls
         pygame.draw.circle(screen, (255, 255, 255), (ballX[i], ballY[i]), 5)
-    ballTouch = 0
 
     #text
     scoreText = f"Bounce Score: {bounces}"
     scoreTextSurface = font.render(scoreText, True, textColor)
     screen.blit(scoreTextSurface, (5,5))
-    text1 = "+1 Ball: "
+    text1 = f"+1 Ball: {price1}"
     button1Txt = font.render(text1, True, textColor)
     screen.blit(button1Txt, (10,535))
-    text2 = "+1 Speed: "
+    text2 = f"+1 Speed: {price2}"
     button2Txt = font.render(text2, True, textColor)
     screen.blit(button2Txt, (210,535))
-    text3 = "+1 Block: "
+    text3 = f"Couldn't dev this"
     button3Txt = font.render(text3, True, textColor)
     screen.blit(button3Txt, (410,535))
-    text4 = "Ball Fever: "
+    text4 = f"+1 Bounce: {price4}"
     button4Txt = font.render(text4, True, textColor)
     screen.blit(button4Txt, (610,535))
     #game update
