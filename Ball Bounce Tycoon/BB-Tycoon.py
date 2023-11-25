@@ -3,6 +3,7 @@ import random
 import math
 
 pygame.init()
+pygame.mixer.init()
 
 #display 
 width = 800
@@ -43,6 +44,11 @@ price4 = 200
 font = pygame.font.Font(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\Arial.ttf', 20)
 textColor = (255,255,255)
 
+#sounds
+noteA = pygame.mixer.Sound(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\piano-a_A_major.wav')
+noteC = pygame.mixer.Sound(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\piano-c_C_major.wav')
+noteD = pygame.mixer.Sound(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\piano-d_D_major.wav')
+noteF = pygame.mixer.Sound(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\piano-f_F_major.wav')
 
 #Game loop
 running = True
@@ -106,18 +112,22 @@ while running:
             speedX[i] = random.uniform(-speed, speed)
             speedY[i] = -(math.sqrt(speed**2 - speedX[i]**2))
             bounces += bounce
+            noteA.play()
         if (ballY[i] <= 0):
             speedX[i] = random.uniform(-speed, speed)
             speedY[i] = (math.sqrt(speed**2 - speedX[i]**2))
             bounces += bounce
+            noteC.play()
         if (ballX[i] >= 800):
             speedY[i] = random.uniform(-speed, speed)
             speedX[i] = -(math.sqrt(speed**2 - speedY[i]**2))
             bounces += bounce
+            noteD.play()
         if (ballX[i] <= 0):
             speedY[i] = random.uniform(-speed, speed)
             speedX[i] = (math.sqrt(speed**2 - speedY[i]**2))
             bounces += bounce
+            noteF.play()
         
         #draw balls
         pygame.draw.circle(screen, (255, 255, 255), (ballX[i], ballY[i]), 5)
