@@ -37,8 +37,9 @@ pressedColor = (10, 80, 10)
 errorColor = (80, 10, 10)
 price1 = 2
 price2 = 20
-price3 = 50
+price3 = 5000
 price4 = 200
+reset = 0
 
 #text
 font = pygame.font.Font(r'C:\Users\zevan\pygame\Ball Bounce Tycoon\Arial.ttf', 20)
@@ -60,7 +61,11 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left mouse button
                 if button1.collidepoint(event.pos):
-                    if bounces >= price1:
+                    if reset == 1:
+                        price1 = 2
+                        reset = 0
+                        buttonColor[0] = (0,0,0)
+                    elif bounces >= price1:
                         ballX.append(400)
                         ballY.append(250)
                         speedX.append(0)
@@ -71,7 +76,11 @@ while running:
                     else:
                         buttonColor[0] = errorColor
                 elif button2.collidepoint(event.pos):
-                    if bounces >= price2:
+                    if reset == 1:
+                        price2 = 20
+                        reset = 0
+                        buttonColor[1] = (0,0,0)
+                    elif bounces >= price2:
                         speed += 0.1
                         bounces -= price2
                         price2 = price2*4
@@ -80,9 +89,17 @@ while running:
                         buttonColor[1] = errorColor
                 elif button3.collidepoint(event.pos):
                     if bounces >= price3:
-                        bounces = 0
+                        reset = 1
+                        price3 *= 4
+                        buttonColor[2] = pressedColor
+                    else:
+                        buttonColor[2] = errorColor
                 elif button4.collidepoint(event.pos): 
-                    if bounces >= price4:
+                    if reset == 1:
+                        price4 = 200
+                        reset = 0
+                        buttonColor[3] = (0, 0, 0)
+                    elif bounces >= price4:
                         bounce += 1
                         bounces -= price4
                         price4 = math.floor(price4*1.2)
@@ -142,7 +159,7 @@ while running:
     text2 = f"+1 Speed: {price2}"
     button2Txt = font.render(text2, True, textColor)
     screen.blit(button2Txt, (210,535))
-    text3 = f"Couldn't dev this"
+    text3 = f"Reset: {price3}"
     button3Txt = font.render(text3, True, textColor)
     screen.blit(button3Txt, (410,535))
     text4 = f"+1 Bounce: {price4}"
