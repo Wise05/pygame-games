@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -17,10 +18,13 @@ pygame.display.set_icon(displayIcon)
 
 #players
 class players(pygame.sprite.Sprite):
-    def __init__(self, path, x, y, up, left, right, direction):
+    def __init__(self, path, pathW, x, y, up, left, right, direction):
         super().__init__()
         self.image = pygame.image.load(path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.image.get_width() * 2, self.image.get_height() * 2))
+        self.idleImage = self.image
+        self.walkImage = pygame.image.load(pathW).convert_alpha()
+        self.walkImage = pygame.transform.scale(self.walkImage, (self.walkImage.get_width() * 2, self.walkImage.get_height() * 2))
         self.hitbox = self.image.get_rect()
         self.hitbox.x = x
         self.hitbox.y = y
@@ -30,6 +34,8 @@ class players(pygame.sprite.Sprite):
         self.left = left
         self.right = right
         self.direction = direction
+        self.bullets = pygame.sprite.Group()
+        self.last_shoot_time = pygame.time.get_ticks()
     
     def forces(self):
         #ground and gravity
@@ -46,36 +52,83 @@ class players(pygame.sprite.Sprite):
             self.hitbox.x = 775
 
     def movement(self):
+        #characters moving from input
         keys = pygame.key.get_pressed()
-        if keys[self.up] and self.hitbox.y >= 522:
+        if keys[self.up] and self.hitbox.y >= 522: #jump
             self.hitbox.y -= 1
             self.ySpeed = -4
-        if keys[self.left]:
+        if keys[self.left]: #move left
             if self.xSpeed <= -4:
                 self.xSpeed = -4
             else:
                 self.xSpeed -= 0.1
-            if self.direction == ">":
+            if self.direction == ">": #changing sprite direction
                 self.direction = "<"
-                self.image = pygame.transform.flip(self.image, True, False)
-        elif keys[self.right]:
+                self.idleImage = pygame.transform.flip(self.idleImage, True, False)
+                self.walkImage = pygame.transform.flip(self.walkImage, True, False)
+                self.image = self.idleImage
+            #shooting left
+            if pygame.time.get_ticks() - self.last_shoot_time > shoot_delay:
+                bullet = Bullet(self.hitbox.x, self.hitbox.y + 19, "<")
+                self.bullets.add(bullet)
+                self.last_shoot_time = pygame.time.get_ticks()
+                #walk animation
+                if self.image == self.idleImage:
+                    self.image = self.walkImage
+                elif self.image == self.walkImage:
+                    self.image = self.idleImage
+        elif keys[self.right]: #move right
             if self.xSpeed >= 4:
                 self.xSpeed = 4
             else:
                 self.xSpeed += 0.1
-            if self.direction == "<":
+            if self.direction == "<": #changing sprite direction
                 self.direction = ">"
-                self.image = pygame.transform.flip(self.image, True, False)
+                self.idleImage = pygame.transform.flip(self.idleImage, True, False)
+                self.walkImage = pygame.transform.flip(self.walkImage, True, False)
+                self.image = self.idleImage
+            #shooting right
+            if pygame.time.get_ticks() - self.last_shoot_time > shoot_delay:
+                bullet = Bullet(self.hitbox.x + 20, self.hitbox.y + 19, ">")
+                self.bullets.add(bullet)
+                self.last_shoot_time = pygame.time.get_ticks()
+                #walk animation
+                if self.image == self.idleImage:
+                    self.image = self.walkImage
+                elif self.image == self.walkImage:
+                    self.image = self.idleImage
         else:
             self.xSpeed = 0
+            self.image = self.idleImage
 
-  
-player1 = players(p1IdlePic, 40, 400, pygame.K_w, pygame.K_a, pygame.K_d, ">")
-player2 = players(p2IdlePic, 740, 200, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, "<")
-player2.image = pygame.transform.flip(player2.image, True, False) #making p2 face correct direction
+
+#creating players 
+player1 = players(p1IdlePic, p1WalkPic, 40, 400, pygame.K_w, pygame.K_a, pygame.K_d, ">")
+player2 = players(p2IdlePic, p2WalkPic, 740, 200, pygame.K_UP, pygame.K_LEFT, pygame.K_RIGHT, "<")
+player2.idleImage = pygame.transform.flip(player2.idleImage, True, False) #making p2 face correct direction
+player2.walkImage = pygame.transform.flip(player2.walkImage, True, False)
+
+# Bullet class
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, direction):
+        super().__init__()
+        self.image = pygame.Surface((7, 3))
+        self.image.fill((200, 200, 200))  # Red color for bullets
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = 8
+        self.randomness = random.uniform(-0.6, 0.6)
+        self.direction = direction
+
+    def update(self):
+        if self.direction == "<":
+            self.rect.x -= self.speed
+        elif self.direction == ">":
+            self.rect.x += self.speed
+        self.rect.y += self.randomness #making bullets fun
 
 clock = pygame.time.Clock()
 FPS = 100
+shoot_delay = 200 
 
 #Game loop
 running = True
@@ -93,6 +146,8 @@ while running:
     player1.forces()
     player2.forces()
 
+    player1.bullets.update()
+    player2.bullets.update()
 
     #update display
     screen.fill((0,0,0))
@@ -102,6 +157,9 @@ while running:
     screen.blit(player1.image, player1.hitbox)
     screen.blit(player2.image, player2.hitbox)
 
+    #draw bullets
+    player1.bullets.draw(screen)
+    player2.bullets.draw(screen)
 
     pygame.display.flip()
 
