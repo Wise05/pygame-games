@@ -8,6 +8,9 @@ p1WalkPic = r"C:\Users\zevan\pygame\2D pvp\player1move.png"
 p2IdlePic = r"C:\Users\zevan\pygame\2D pvp\player2shoot.png"
 p2WalkPic = r"C:\Users\zevan\pygame\2D pvp\player2move.png"
 
+#text
+font = pygame.font.Font(r'C:\Users\zevan\pygame\Pong\Retro Gaming.ttf', 40)
+
 #display 
 displayWidth = 800
 displayHeight = 600
@@ -16,19 +19,17 @@ caption = pygame.display.set_caption("2D PVP")
 displayIcon = pygame.image.load(r"C:\Users\zevan\pygame\2D pvp\player1shoot.png")
 pygame.display.set_icon(displayIcon)
 
-#envornments
+#envornment generation
 environment = [[0,0,0,0,0,0,0,0], 
                [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0],
-               [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0], 
-               [0,0,0,0,0,0,0,0], 
-               [1,0,0,0,0,0,0,1], 
-               [1,0,0,0,1,0,0,0], 
-               [0,0,0,1,1,1,0,1]]
+               [0,0,0,0,0,0,0,0]]
+for i in range(9):
+    array = []
+    for j in range(8):
+        num = random.randint(-1, 1)
+        array.append(num)
+    environment.append(array)
+
 squares = []
 for i in range(12):
     for j in range(8):
@@ -56,22 +57,23 @@ class players(pygame.sprite.Sprite):
         self.bullets = pygame.sprite.Group()
         self.last_shoot_time = pygame.time.get_ticks()
         self.health = 10
+        self.onGround = 0
     
     def forces(self):
         #walls and stuff
-        doGravity = 1
         for i in range(len(squares)):
             if self.hitbox.y + 19 < squares[i].y and self.hitbox.colliderect(squares[i]):
                 if self.ySpeed > 0:
                     self.hitbox.y = squares[i].y - 37
                     self.ySpeed = 0
-                    doGravity = 0
+                    self.onGround = 1
 
         #ground and gravity
         if self.hitbox.y >= 522:
             self.hitbox.y = 522
             self.ySpeed = 0
-        elif doGravity == 1:
+            self.onGround = 1
+        else:
             self.ySpeed += 0.1
         self.hitbox.x += self.xSpeed
         self.hitbox.y += self.ySpeed
@@ -80,12 +82,13 @@ class players(pygame.sprite.Sprite):
         if self.hitbox.x >= 775:
             self.hitbox.x = 775
                     
-    def movement(self):
+    def movement(self): #sorry for the long function
         #characters moving from input
         keys = pygame.key.get_pressed()
-        if keys[self.up] and self.hitbox.y >= 522: #jump
+        if keys[self.up] and self.onGround == 1: #jump
             self.hitbox.y -= 2
             self.ySpeed = -4
+            self.onGround = 0
 
         if keys[self.left]: #move left
             if self.xSpeed <= -4:
@@ -176,6 +179,7 @@ while running:
             running = False
 
     clock.tick(FPS)
+    doShoot = 1
 
     #character stuff
     player1.movement()
@@ -212,10 +216,15 @@ while running:
 
     #win condition
     if player1.health <= 0:
-        print("player 2 wins")
+        text = "Player 2 Wins!"
+        rText = font.render(text, True, (255,0,0))
+        screen.blit(rText, (220, 260))
+        player2.health = 10
     if player2.health <= 0:
-        print("player 1 wins")
-
+        text = "Player 1 Wins!"
+        rText = font.render(text, True, (20,20,255))
+        screen.blit(rText, (220, 260))
+        player1.health = 10
     pygame.display.flip()
 
 pygame.quit
