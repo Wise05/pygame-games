@@ -67,6 +67,8 @@ class players(pygame.sprite.Sprite):
                     self.hitbox.y = squares[i].y - 37
                     self.ySpeed = 0
                     self.onGround = 1
+        if self.hitbox.collidelist(squares) == -1:
+            self.onGround = 0
 
         #ground and gravity
         if self.hitbox.y >= 522:
