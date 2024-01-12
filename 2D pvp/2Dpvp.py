@@ -2,11 +2,15 @@ import pygame
 import random
 
 pygame.init()
+pygame.mixer.init()
 
-p1IdlePic = r"C:\Users\zevan\pygame\2D pvp\player1shoot.png"
-p1WalkPic = r"C:\Users\zevan\pygame\2D pvp\player1move.png"
-p2IdlePic = r"C:\Users\zevan\pygame\2D pvp\player2shoot.png"
-p2WalkPic = r"C:\Users\zevan\pygame\2D pvp\player2move.png"
+p1IdlePic = r"C:\Users\zevan\pygame\2D pvp\imgs\player1shoot.png"
+p1WalkPic = r"C:\Users\zevan\pygame\2D pvp\imgs\player1move.png"
+p2IdlePic = r"C:\Users\zevan\pygame\2D pvp\imgs\player2shoot.png"
+p2WalkPic = r"C:\Users\zevan\pygame\2D pvp\imgs\player2move.png"
+
+jumpSound = pygame.mixer.Sound(r'C:\Users\zevan\pygame\2D pvp\sounds\jump.wav')
+hitSound = pygame.mixer.Sound(r'C:\Users\zevan\pygame\2D pvp\sounds\punch-cropped.wav')
 
 #text
 font = pygame.font.Font(r'C:\Users\zevan\pygame\Pong\Retro Gaming.ttf', 40)
@@ -16,7 +20,7 @@ displayWidth = 800
 displayHeight = 600
 screen = pygame.display.set_mode((displayWidth, displayHeight))
 caption = pygame.display.set_caption("2D PVP")
-displayIcon = pygame.image.load(r"C:\Users\zevan\pygame\2D pvp\player1shoot.png")
+displayIcon = pygame.image.load(p1IdlePic)
 pygame.display.set_icon(displayIcon)
 
 #envornment generation
@@ -91,6 +95,7 @@ class players(pygame.sprite.Sprite):
             self.hitbox.y -= 2
             self.ySpeed = -4
             self.onGround = 0
+            jumpSound.play()
 
         if keys[self.left]: #move left
             if self.xSpeed <= -4:
@@ -130,6 +135,7 @@ class players(pygame.sprite.Sprite):
                 bullet = Bullet(self.hitbox.x + 20, self.hitbox.y + 19, ">")
                 self.bullets.add(bullet)
                 self.last_shoot_time = pygame.time.get_ticks()
+
                 #walk animation
                 if self.image == self.idleImage:
                     self.image = self.walkImage
@@ -144,6 +150,7 @@ class players(pygame.sprite.Sprite):
             if player.hitbox.colliderect(i):
                 player.health -= 1
                 self.bullets.remove(i)
+                hitSound.play()
 
 #creating players 
 player1 = players(p1IdlePic, p1WalkPic, 120, 520, pygame.K_w, pygame.K_a, pygame.K_d, ">")
@@ -181,7 +188,6 @@ while running:
             running = False
 
     clock.tick(FPS)
-    doShoot = 1
 
     #character stuff
     player1.movement()
