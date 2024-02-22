@@ -1,13 +1,12 @@
 import pygame
+import time
 
 pygame.init()
 
-#colors and visual stuff
+#visual stuff
 floorImg = pygame.image.load(r"sokoban\images\soko_ground.png")
 wallImg = pygame.image.load(r"sokoban\images\soko_wall.png")
 destinationImg = pygame.image.load(r"sokoban\images\soko_destination.png")
-playerImg = pygame.image.load(r"sokoban\images\the_MAN.png")
-boxImg = pygame.image.load(r"sokoban\images\the_BOX.png")
 
 #levels
 def openLevelFile(file):
@@ -23,7 +22,7 @@ def openLevelFile(file):
 levelFiles = [r'sokoban\levels\level1.txt']
 levelMap = openLevelFile(levelFiles[0])
 '''
-Key for file
+Key for file symbols
 o = nothing or ground
 w = wall
 p = player
@@ -36,7 +35,82 @@ displayWidth = 800
 displayHeight = 600
 screen = pygame.display.set_mode((displayWidth, displayHeight))
 caption = pygame.display.set_caption("Sokoban")
-pygame.display.set_icon(boxImg)
+pygame.display.set_icon(wallImg)
+
+class crate(): 
+    def __init__(self, x, y):
+        self.crateImg = pygame.image.load(r"sokoban\images\the_BOX.png")
+        self.location = [x,y]
+    
+    def setLocation(self, x, y):
+        self.location = [x,y]
+    
+    def moveLeft(self):
+        if levelMap[self.location[1]][self.location[0] - 1] != 'w':
+            self.location[0] -= 1
+    def moveRight(self):
+        if levelMap[self.location[1]][self.location[0] + 1] != 'w':
+            self.location[0] += 1
+    def moveUp(self):
+        if levelMap[self.location[1] - 1][self.location[0]] != 'w':
+            self.location[1] -= 1
+    def moveDown(self):
+        if levelMap[self.location[1] + 1][self.location[0]] != 'w':
+            self.location[1] += 1
+
+crates = []
+for i in range(30):
+    for j in range(40):
+        if levelMap[i][j] == 'b':
+            crates.append(crate(j, i))
+            
+class playerGuy():
+    def __init__(self):
+        self.playerImg = pygame.image.load(r"sokoban\images\the_MAN.png")
+        self.location = [0,0]
+
+    def setLocation(self, x, y):
+        self.location = [x,y]
+
+    def getLocation(self):
+        for i in range(30):
+            for j in range(40):
+                if levelMap[i][j] == 'p':
+                    player.setLocation(j,i)
+
+    def moveLeft(self):
+        if levelMap[self.location[1]][self.location[0] - 1] != 'w':
+            self.location[0] -= 1
+    def moveRight(self):
+        if levelMap[self.location[1]][self.location[0] + 1] != 'w':
+            self.location[0] += 1
+    def moveUp(self):
+        if levelMap[self.location[1] - 1][self.location[0]] != 'w':
+            self.location[1] -= 1
+    def moveDown(self):
+        if levelMap[self.location[1] + 1][self.location[0]] != 'w':
+            self.location[1] += 1
+    
+    def movement(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.moveLeft()
+            time.sleep(0.1)
+        elif keys[pygame.K_RIGHT]:
+            self.moveRight()
+            time.sleep(0.1)
+        elif keys[pygame.K_UP]:
+            self.moveUp()
+            time.sleep(0.1)
+        elif keys[pygame.K_DOWN]:
+            self.moveDown()
+            time.sleep(0.1)
+            
+player = playerGuy()
+player.getLocation()
+
+def boxDimensions(x, y):
+    return (x * 20, y * 20, 20, 20)
 
 #Game loop
 running = True
@@ -45,20 +119,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
+    player.movement()
+
     #update display
     for i in range(30):
         for j in range(40):
             if levelMap[i][j] == 'w':
-                screen.blit(wallImg, (j * 20, i * 20, 20, 20))
+                screen.blit(wallImg, boxDimensions(j,i))
             elif levelMap[i][j] == 'd':
-                screen.blit(destinationImg, (j * 20, i * 20, 20, 20))
-            elif levelMap[i][j] == 'b':
-                screen.blit(boxImg, (j * 20, i * 20, 20, 20))
-            elif levelMap[i][j] == 'p':
-                screen.blit(floorImg, (j * 20, i * 20, 20, 20))
-                screen.blit(playerImg, (j * 20, i * 20, 20, 20))
-            elif levelMap[i][j] == 'o':
-                screen.blit(floorImg, (j * 20, i * 20, 20, 20))
+                screen.blit(destinationImg, boxDimensions(j,i))
+            elif levelMap[i][j] == 'b' or levelMap[i][j] == 'p' or levelMap[i][j] == 'o':
+                screen.blit(floorImg, boxDimensions(j,i))
+    screen.blit(player.playerImg, boxDimensions(player.location[0], player.location[1]))
+    for i in crates:
+        screen.blit(i.crateImg, boxDimensions(i.location[0], i.location[1]))
 
     pygame.display.flip()
 
