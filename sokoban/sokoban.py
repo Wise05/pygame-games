@@ -46,17 +46,14 @@ class crate():
         self.location = [x,y]
     
     def moveLeft(self):
-        if levelMap[self.location[1]][self.location[0] - 1] != 'w':
-            self.location[0] -= 1
+        self.location[0] -= 1
     def moveRight(self):
-        if levelMap[self.location[1]][self.location[0] + 1] != 'w':
-            self.location[0] += 1
+        self.location[0] += 1
     def moveUp(self):
-        if levelMap[self.location[1] - 1][self.location[0]] != 'w':
-            self.location[1] -= 1
+        self.location[1] -= 1
     def moveDown(self):
-        if levelMap[self.location[1] + 1][self.location[0]] != 'w':
-            self.location[1] += 1
+        self.location[1] += 1
+
 
 crates = []
 for i in range(30):
@@ -68,6 +65,7 @@ class playerGuy():
     def __init__(self):
         self.playerImg = pygame.image.load(r"sokoban\images\the_MAN.png")
         self.location = [0,0]
+        self.keyPressed = None
 
     def setLocation(self, x, y):
         self.location = [x,y]
@@ -79,32 +77,46 @@ class playerGuy():
                     player.setLocation(j,i)
 
     def moveLeft(self):
-        if levelMap[self.location[1]][self.location[0] - 1] != 'w':
+        if self.checkSpace("left"):
             self.location[0] -= 1
     def moveRight(self):
-        if levelMap[self.location[1]][self.location[0] + 1] != 'w':
+        if self.checkSpace("right"):
             self.location[0] += 1
     def moveUp(self):
-        if levelMap[self.location[1] - 1][self.location[0]] != 'w':
+        if self.checkSpace("up"):
             self.location[1] -= 1
     def moveDown(self):
-        if levelMap[self.location[1] + 1][self.location[0]] != 'w':
+        if self.checkSpace("down"):
             self.location[1] += 1
     
     def movement(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.moveLeft()
-            time.sleep(0.1)
-        elif keys[pygame.K_RIGHT]:
-            self.moveRight()
-            time.sleep(0.1)
-        elif keys[pygame.K_UP]:
-            self.moveUp()
-            time.sleep(0.1)
-        elif keys[pygame.K_DOWN]:
-            self.moveDown()
-            time.sleep(0.1)
+        if self.keyPressed is None:
+            if keys[pygame.K_LEFT]:
+                self.moveLeft()
+                self.keyPressed = pygame.K_LEFT
+            elif keys[pygame.K_RIGHT]:
+                self.moveRight()
+                self.keyPressed = pygame.K_RIGHT
+            elif keys[pygame.K_UP]:
+                self.moveUp()
+                self.keyPressed = pygame.K_UP
+            elif keys[pygame.K_DOWN]:
+                self.moveDown()
+                self.keyPressed = pygame.K_DOWN
+        else:
+            if not keys[self.keyPressed]:
+                self.keyPressed = None
+    
+    def checkSpace(self, direction):
+        if direction == "left":
+            return levelMap[self.location[1]][self.location[0] - 1] != 'w'
+        if direction == "right":
+            return levelMap[self.location[1]][self.location[0] + 1] != 'w'
+        if direction == "up":
+            return levelMap[self.location[1] - 1][self.location[0]] != 'w'
+        if direction == "down":
+            return levelMap[self.location[1] + 1][self.location[0]] != 'w'
             
 player = playerGuy()
 player.getLocation()
