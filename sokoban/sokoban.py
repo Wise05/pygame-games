@@ -1,5 +1,4 @@
 import pygame
-import time
 
 pygame.init()
 
@@ -54,12 +53,29 @@ class crate():
     def moveDown(self):
         self.location[1] += 1
 
-
 crates = []
-for i in range(30):
-    for j in range(40):
-        if levelMap[i][j] == 'b':
-            crates.append(crate(j, i))
+def findCrates():
+    for i in range(30):
+        for j in range(40):
+            if levelMap[i][j] == 'b':
+                crates.append(crate(j, i))
+findCrates()
+
+def checkIfCrateHere(location,):
+    for i in crates:
+        if i.location == location:
+            return i
+    return None
+        
+def checkIfWall(object, direction):
+    if direction == "left":
+        return levelMap[object.location[1]][object.location[0] - 1] != 'w'
+    if direction == "right":
+        return levelMap[object.location[1]][object.location[0] + 1] != 'w'
+    if direction == "up":
+        return levelMap[object.location[1] - 1][object.location[0]] != 'w'
+    if direction == "down":
+        return levelMap[object.location[1] + 1][object.location[0]] != 'w'
             
 class playerGuy():
     def __init__(self):
@@ -77,18 +93,42 @@ class playerGuy():
                     player.setLocation(j,i)
 
     def moveLeft(self):
-        if self.checkSpace("left"):
+        if checkIfWall(self, "left"):
+            thisCrate = checkIfCrateHere([player.location[0] - 1, player.location[1]])
+            if thisCrate != None:
+                if checkIfWall(thisCrate, "left"):
+                    thisCrate.moveLeft()
+                else:
+                    self.location[0] += 1
             self.location[0] -= 1
     def moveRight(self):
-        if self.checkSpace("right"):
+        if checkIfWall(self, "right"):
+            thisCrate = checkIfCrateHere([player.location[0] + 1, player.location[1]])
+            if thisCrate != None:
+                if checkIfWall(thisCrate, "right"):
+                    thisCrate.moveRight()
+                else:
+                    self.location[0] -= 1
             self.location[0] += 1
     def moveUp(self):
-        if self.checkSpace("up"):
+        if checkIfWall(self, "up"):
+            thisCrate = checkIfCrateHere([player.location[0], player.location[1] - 1])
+            if thisCrate != None:
+                if checkIfWall(thisCrate, "up"):
+                    thisCrate.moveUp()
+                else:
+                    self.location[1] += 1
             self.location[1] -= 1
     def moveDown(self):
-        if self.checkSpace("down"):
+        if checkIfWall(self, "down"):
+            thisCrate = checkIfCrateHere([player.location[0], player.location[1] + 1])
+            if thisCrate != None:
+                if checkIfWall(thisCrate, "down"):
+                    thisCrate.moveDown()
+                else:
+                    self.location[1] -= 1
             self.location[1] += 1
-    
+             
     def movement(self):
         keys = pygame.key.get_pressed()
         if self.keyPressed is None:
@@ -107,16 +147,6 @@ class playerGuy():
         else:
             if not keys[self.keyPressed]:
                 self.keyPressed = None
-    
-    def checkSpace(self, direction):
-        if direction == "left":
-            return levelMap[self.location[1]][self.location[0] - 1] != 'w'
-        if direction == "right":
-            return levelMap[self.location[1]][self.location[0] + 1] != 'w'
-        if direction == "up":
-            return levelMap[self.location[1] - 1][self.location[0]] != 'w'
-        if direction == "down":
-            return levelMap[self.location[1] + 1][self.location[0]] != 'w'
             
 player = playerGuy()
 player.getLocation()
