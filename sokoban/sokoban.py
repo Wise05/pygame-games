@@ -41,9 +41,6 @@ class crate():
         self.crateImg = pygame.image.load(r"sokoban\images\the_BOX.png")
         self.location = [x,y]
     
-    def setLocation(self, x, y):
-        self.location = [x,y]
-    
     def moveLeft(self):
         self.location[0] -= 1
     def moveRight(self):
@@ -61,7 +58,7 @@ def findCrates():
                 crates.append(crate(j, i))
 findCrates()
 
-def checkIfCrateHere(location,):
+def checkIfCrateHere(location):
     for i in crates:
         if i.location == location:
             return i
@@ -151,6 +148,24 @@ class playerGuy():
 player = playerGuy()
 player.getLocation()
 
+destinations = []
+def findDestinations():
+    for i in range(30):
+        for j in range(40):
+            if levelMap[i][j] == 'd':
+                destinations.append([j, i])
+findDestinations()
+
+def checkWin(destinations, crates):
+    count = 0
+    for i in range(len(destinations)):
+        if destinations[i] == crates[i].location:
+            count += 1
+    
+    if count == len(destinations):
+        return True
+    return False
+
 def boxDimensions(x, y):
     return (x * 20, y * 20, 20, 20)
 
@@ -162,6 +177,9 @@ while running:
             running = False
     
     player.movement()
+    
+    if checkWin(destinations, crates):
+        print("WIN!")
 
     #update display
     for i in range(30):
