@@ -7,7 +7,6 @@ floorImg = pygame.image.load(r"sokoban\images\soko_ground.png")
 wallImg = pygame.image.load(r"sokoban\images\soko_wall.png")
 destinationImg = pygame.image.load(r"sokoban\images\soko_destination.png")
 
-#levels
 def openLevelFile(file):
     i = 0
     map = []
@@ -18,8 +17,10 @@ def openLevelFile(file):
             i += 1
     return map
 
-levelFiles = [r'sokoban\levels\level1.txt']
+levelFiles = [r'sokoban\levels\level1.txt', r'sokoban\levels\level2.txt', r'sokoban\levels\level3.txt', r'sokoban\levels\level4.txt', r'sokoban\levels\level5.txt']
+#levelFiles = [r'sokoban\levels\level5.txt']
 levelMap = openLevelFile(levelFiles[0])
+levelNum = 0
 '''
 Key for file symbols
 o = nothing or ground
@@ -93,7 +94,7 @@ class playerGuy():
         if checkIfWall(self, "left"):
             thisCrate = checkIfCrateHere([player.location[0] - 1, player.location[1]])
             if thisCrate != None:
-                if checkIfWall(thisCrate, "left"):
+                if checkIfWall(thisCrate, "left") and checkIfCrateHere([thisCrate.location[0] - 1, thisCrate.location[1]]) == None:
                     thisCrate.moveLeft()
                 else:
                     self.location[0] += 1
@@ -102,7 +103,7 @@ class playerGuy():
         if checkIfWall(self, "right"):
             thisCrate = checkIfCrateHere([player.location[0] + 1, player.location[1]])
             if thisCrate != None:
-                if checkIfWall(thisCrate, "right"):
+                if checkIfWall(thisCrate, "right") and checkIfCrateHere([thisCrate.location[0] + 1, thisCrate.location[1]]) == None:
                     thisCrate.moveRight()
                 else:
                     self.location[0] -= 1
@@ -111,7 +112,7 @@ class playerGuy():
         if checkIfWall(self, "up"):
             thisCrate = checkIfCrateHere([player.location[0], player.location[1] - 1])
             if thisCrate != None:
-                if checkIfWall(thisCrate, "up"):
+                if checkIfWall(thisCrate, "up") and checkIfCrateHere([thisCrate.location[0], thisCrate.location[1] - 1]) == None:
                     thisCrate.moveUp()
                 else:
                     self.location[1] += 1
@@ -120,14 +121,13 @@ class playerGuy():
         if checkIfWall(self, "down"):
             thisCrate = checkIfCrateHere([player.location[0], player.location[1] + 1])
             if thisCrate != None:
-                if checkIfWall(thisCrate, "down"):
+                if checkIfWall(thisCrate, "down") and checkIfCrateHere([thisCrate.location[0], thisCrate.location[1] + 1]) == None:
                     thisCrate.moveDown()
                 else:
                     self.location[1] -= 1
             self.location[1] += 1
              
     def movement(self):
-        keys = pygame.key.get_pressed()
         if self.keyPressed is None:
             if keys[pygame.K_LEFT]:
                 self.moveLeft()
@@ -159,9 +159,9 @@ findDestinations()
 def checkWin(destinations, crates):
     count = 0
     for i in range(len(destinations)):
-        if destinations[i] == crates[i].location:
-            count += 1
-    
+        for j in range(len(crates)):
+            if destinations[i] == crates[j].location:
+                count += 1
     if count == len(destinations):
         return True
     return False
@@ -176,10 +176,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
+    keys = pygame.key.get_pressed()
     player.movement()
     
     if checkWin(destinations, crates):
-        print("WIN!")
+        levelNum += 1
+        if levelNum < len(levelFiles):
+            levelMap = openLevelFile(levelFiles[levelNum])
+            destinations = []
+            crates = []
+            findCrates()
+            findDestinations()
+            player.getLocation()
+        else:
+            print("win!")
+            
+    #resets level
+    if keys[pygame.K_r]:
+        destinations = []
+        crates = []
+        findCrates()
+        findDestinations()
+        player.getLocation()
 
     #update display
     for i in range(30):
@@ -188,7 +206,7 @@ while running:
                 screen.blit(wallImg, boxDimensions(j,i))
             elif levelMap[i][j] == 'd':
                 screen.blit(destinationImg, boxDimensions(j,i))
-            elif levelMap[i][j] == 'b' or levelMap[i][j] == 'p' or levelMap[i][j] == 'o':
+            elif levelMap[i][j] == 'b' or levelMap[i][j] == 'p' or levelMap[i][j] == ' ':
                 screen.blit(floorImg, boxDimensions(j,i))
     screen.blit(player.playerImg, boxDimensions(player.location[0], player.location[1]))
     for i in crates:
