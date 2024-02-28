@@ -6,6 +6,9 @@ pygame.init()
 floorImg = pygame.image.load(r"sokoban\images\soko_ground.png")
 wallImg = pygame.image.load(r"sokoban\images\soko_wall.png")
 destinationImg = pygame.image.load(r"sokoban\images\soko_destination.png")
+font = pygame.font.Font(r'sokoban\text\Retro Gaming.ttf', 18)
+winFont = pygame.font.Font(r'sokoban\text\Retro Gaming.ttf', 60)
+winText = ' '
 
 def openLevelFile(file):
     i = 0
@@ -17,7 +20,7 @@ def openLevelFile(file):
             i += 1
     return map
 
-levelFiles = [r'sokoban\levels\level1.txt', r'sokoban\levels\level2.txt', r'sokoban\levels\level3.txt', r'sokoban\levels\level4.txt', r'sokoban\levels\level5.txt']
+levelFiles = [r'sokoban\levels\level1.txt', r'sokoban\levels\level2.txt', r'sokoban\levels\level3.txt', r'sokoban\levels\level4.txt', r'sokoban\levels\level5.txt', r'sokoban\levels\level6.txt']
 #levelFiles = [r'sokoban\levels\level5.txt']
 levelMap = openLevelFile(levelFiles[0])
 levelNum = 0
@@ -129,18 +132,18 @@ class playerGuy():
              
     def movement(self):
         if self.keyPressed is None:
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_a]:
                 self.moveLeft()
-                self.keyPressed = pygame.K_LEFT
-            elif keys[pygame.K_RIGHT]:
+                self.keyPressed = pygame.K_a
+            elif keys[pygame.K_d]:
                 self.moveRight()
-                self.keyPressed = pygame.K_RIGHT
-            elif keys[pygame.K_UP]:
+                self.keyPressed = pygame.K_d
+            elif keys[pygame.K_w]:
                 self.moveUp()
-                self.keyPressed = pygame.K_UP
-            elif keys[pygame.K_DOWN]:
+                self.keyPressed = pygame.K_w
+            elif keys[pygame.K_s]:
                 self.moveDown()
-                self.keyPressed = pygame.K_DOWN
+                self.keyPressed = pygame.K_s
         else:
             if not keys[self.keyPressed]:
                 self.keyPressed = None
@@ -189,7 +192,7 @@ while running:
             findDestinations()
             player.getLocation()
         else:
-            print("win!")
+            winText = 'You Win!'
             
     #resets level
     if keys[pygame.K_r]:
@@ -211,6 +214,12 @@ while running:
     screen.blit(player.playerImg, boxDimensions(player.location[0], player.location[1]))
     for i in crates:
         screen.blit(i.crateImg, boxDimensions(i.location[0], i.location[1]))
+
+    text = f"Level: {levelNum + 1}"
+    rendText = font.render(text, True, (0,0,0))
+    screen.blit(rendText, (690, 0))
+    winTextRend = winFont.render(winText, True, (0,0,0))
+    screen.blit(winTextRend, (250, 100))
 
     pygame.display.flip()
 
